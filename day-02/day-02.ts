@@ -1,38 +1,26 @@
-// Only 12 red cubes, 13 green cubes, and 14 blue cubes?
+import { fileReader } from '../common/fileReader.ts'
+import { multiply, sum } from '../common/sum.ts'
 
-import { fileReader } from '../common/fileReader.js'
-
-const triggerMap: Record<string, number | undefined> = {
-  red: 12,
-  green: 13,
-  blue: 14,
-} as const
-
-let sum = 0
-const gamesPossible: number[] = []
+const results: number[] = []
 await fileReader({
   filePath: './day-02/input.txt',
-  async onLine(line: string, index: number) {
-    let possible = true
-    const [game, rest] = line.split(':')
-    const [, gameIdx] = game.split('Game ')
+  async onLine(line: string) {
+    const [, rest] = line.split(':')
     const draws = rest.replace(/;/g, ',').split(',')
 
+    const colorMap: Record<string, number> = {}
     draws.forEach((draw) => {
       const [, numberStr, color] = draw.split(' ')
       const num = parseInt(numberStr, 10)
-      const offense = triggerMap[color]
-      if (offense && num > offense) {
-        possible = false
+      const colorAmount = colorMap[color] ?? 0
+
+      if (num > colorAmount) {
+        colorMap[color] = num
       }
     })
 
-    if (possible) {
-      const items = parseInt(gameIdx, 10)
-      sum += items
-      gamesPossible.push(items)
-    }
+    results.push(multiply(Object.values(colorMap)))
   },
 })
 
-console.log(gamesPossible, sum)
+console.log(sum(results))
