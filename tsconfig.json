@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["bun-types"],
     "target": "es2022",
     "module": "nodenext",
     "lib": ["es6"],
