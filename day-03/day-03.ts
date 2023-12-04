@@ -1,14 +1,12 @@
 import { isNumber } from '../common/isNumber.ts'
 import { sum } from '../common/sum.ts'
 import { parseInt10 } from '../common/parseInt10.ts'
+import { readFile } from '../common/readFile.js'
 
 const makeKey = (x: number, y: number) => `${x},${y}`
 
-function sumPartNumbers(schematic: string): number {
-  const rows = schematic
-    .split('\n')
-    .filter((row) => row.trim())
-    .map((row) => row.split(''))
+function sumPartNumbers(input: string[]): number {
+  const rows = input.map((row) => row.split(''))
   const visited = new Set<string>()
   const gearRatios: Record<string, [number, number]> = {}
 
@@ -69,4 +67,6 @@ function sumPartNumbers(schematic: string): number {
   )
 }
 
-console.log(sumPartNumbers(await Bun.file('day-03/input.txt').text()))
+const fileContents = await readFile('day-03/input.txt')
+
+console.log(sumPartNumbers(fileContents))
