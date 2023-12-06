@@ -3,7 +3,6 @@ import { parseInt10 } from '../common/parseInt10.js'
 import { sum } from '../common/sum.js'
 
 const fileContents = await readFile('day-04/input.txt')
-
 const cleanArray = (input: string): number[] =>
   input
     .split(' ')
@@ -24,12 +23,7 @@ fileContents.forEach((line) => {
   const cleanCards = cleanArray(cards)
   const cleanWinning = cleanArray(winning)
 
-  let hits = 0
-  cleanCards.forEach((c) => {
-    if (cleanWinning.includes(c)) {
-      hits++
-    }
-  })
+  const hits = cleanCards.filter((c) => cleanWinning.includes(c)).length
 
   for (let i = cardId + 1; i <= cardId + hits; i++) {
     scratchCardsWon[i] = scratchCardsWon[i] ?? 0
