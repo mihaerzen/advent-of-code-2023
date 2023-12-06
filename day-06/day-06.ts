@@ -1,8 +1,5 @@
 const races: Array<[time: number, distance: number]> = [
-  [61, 643],
-  [70, 1184],
-  [90, 1362],
-  [66, 1041],
+  [61709066, 643118413621041],
 ]
 
 function waysToBeatRecord(time: number, distance: number) {
@@ -22,4 +19,4 @@ function waysToBeatRecord(time: number, distance: number) {
 console.log(
   races.reduce((product, race) => product * waysToBeatRecord(...race), 1)
 )
-// 293046
+// 35150181
