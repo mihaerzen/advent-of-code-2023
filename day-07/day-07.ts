@@ -8,34 +8,68 @@ const cardStrength: Record<string, number> = {
   A: 12,
   K: 11,
   Q: 10,
-  J: 9,
-  T: 8,
-  '9': 7,
-  '8': 6,
-  '7': 5,
-  '6': 4,
-  '5': 3,
-  '4': 2,
-  '3': 1,
-  '2': 0,
+  T: 9,
+  '9': 8,
+  '8': 7,
+  '7': 6,
+  '6': 5,
+  '5': 4,
+  '4': 3,
+  '3': 2,
+  '2': 1,
+  J: 0,
 }
 /* eslint-enable @typescript-eslint/naming-convention */
 
-const getCardStrength = (c: string) => cardStrength[c] ?? 0
+const getCardStrength = (c: string): number => cardStrength[c] ?? 0
 
-const isFiveOfKind = (hand: string) =>
-  (hand.match(new RegExp(hand[0], 'g')) ?? []).length === 5
+const isOfKindHashMap: Record<string, boolean> = {}
+const isOfKind = (n: number) => (hand: string) => {
+  const hashKey = `${hand}-${n}`
+  if (isOfKindHashMap[hashKey] !== undefined) {
+    return isOfKindHashMap[hashKey]
+  }
 
-const isFourOfKind = (hand: string) =>
-  (hand.match(new RegExp(hand[0], 'g')) ?? []).length === 4 ||
-  (hand.match(new RegExp(hand[1], 'g')) ?? []).length === 4
+  const cardCounts: Record<string, number> = {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    J: 0,
+  }
 
-const isThreeOfKind = (hand: string) =>
-  (hand.match(new RegExp(hand[0], 'g')) ?? []).length === 3 ||
-  (hand.match(new RegExp(hand[1], 'g')) ?? []).length === 3 ||
-  (hand.match(new RegExp(hand[2], 'g')) ?? []).length === 3
+  for (const card of hand) {
+    cardCounts[card] = cardCounts[card] ?? 0
+    cardCounts[card]++
 
+    if (cardCounts[card] === n) {
+      return true
+    }
+  }
+
+  for (const card of hand) {
+    if (card === 'J') continue
+    if (cardCounts[card] + cardCounts.J === n) {
+      isOfKindHashMap[hashKey] = true
+      return true
+    }
+  }
+
+  isOfKindHashMap[hashKey] = false
+  return false
+}
+
+const isFiveOfKind = isOfKind(5)
+
+const isFourOfKind = isOfKind(4)
+
+const isThreeOfKind = isOfKind(3)
+
+const isPair = isOfKind(2)
+
+const isTwoPairHashMap: Record<string, boolean> = {}
 const isTwoPair = (hand: string) => {
+  if (isTwoPairHashMap[hand] !== undefined) {
+    return isTwoPairHashMap[hand]
+  }
+
   const cardCounts: Record<string, number> = {}
   for (const card of hand) {
     cardCounts[card] = cardCounts[card] ?? 0
@@ -49,25 +83,29 @@ const isTwoPair = (hand: string) => {
     }
   }
 
-  return pairCount === 2
+  const solution = pairCount === 2
+  isTwoPairHashMap[hand] = solution
+  return solution
 }
 
-const isPair = (hand: string) =>
-  (hand.match(new RegExp(hand[0], 'g')) ?? []).length === 2 ||
-  (hand.match(new RegExp(hand[1], 'g')) ?? []).length === 2 ||
-  (hand.match(new RegExp(hand[2], 'g')) ?? []).length === 2 ||
-  (hand.match(new RegExp(hand[3], 'g')) ?? []).length === 2
-
+const isFullHouseHashMap: Record<string, boolean> = {}
 const isFullHouse = (hand: string) => {
-  const [first, ...rest] = hand.split('').sort()
-  const last = rest.slice(-1)[0]
+  if (isFullHouseHashMap[hand] !== undefined) {
+    return isFullHouseHashMap[hand]
+  }
 
-  return (
-    ((hand.match(new RegExp(first, 'g')) ?? []).length === 3 &&
-      (hand.match(new RegExp(last, 'g')) ?? []).length === 2) ||
-    ((hand.match(new RegExp(last, 'g')) ?? []).length === 3 &&
-      (hand.match(new RegExp(first, 'g')) ?? []).length === 2)
-  )
+  const noJokers = hand.replaceAll('J', '')
+  const [first, ...rest] = noJokers.split('').sort()
+  const last = rest.slice(-1)[0]
+  const compareStr = hand.replaceAll('J', first)
+
+  const solution =
+    ((compareStr.match(new RegExp(first, 'g')) ?? []).length === 3 &&
+      (compareStr.match(new RegExp(last, 'g')) ?? []).length === 2) ||
+    ((compareStr.match(new RegExp(last, 'g')) ?? []).length === 3 &&
+      (compareStr.match(new RegExp(first, 'g')) ?? []).length === 2)
+  isFullHouseHashMap[hand] = solution
+  return solution
 }
 
 const compareHighCard = (handA: string, handB: string) => {
@@ -163,12 +201,11 @@ const sorted = text.sort((lineA, lineB) => {
   return compareHighCard(handA, handB)
 })
 
-console.log(sorted)
-
 console.log(
-  sorted.reduce((acc, line, currentIndex) => {
-    const [, bid] = line.split(' ')
-    acc += parseInt10(bid) * (currentIndex + 1)
-    return acc
-  }, 0)
+  sorted.reduce(
+    (acc, line, currentIndex) =>
+      acc + parseInt10(line.split(' ')[1]) * (currentIndex + 1),
+    0
+  )
 )
+// 249776650
